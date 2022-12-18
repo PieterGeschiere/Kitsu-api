@@ -1,0 +1,117 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+* {
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  background-color: rgb(0, 20, 28);
+}
+
+#navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background-color: whitesmoke;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 5px groove black;
+}
+
+#navbar div {
+  width: 200px;
+  text-align: center;
+}
+
+#items {
+  position: fixed;
+  top: 105px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+  align-items: center;
+}
+
+.item {
+  background-color: whitesmoke;
+  margin: 0px 200px;
+  padding: 20px;
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-height: 500px;
+  gap: 100px;
+}
+
+.item-left {
+  max-height: 100%;
+  width: 400px;
+  text-align: center;
+}
+
+.item-left .item-description {
+  margin: 20px 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.item-right {
+  display: flex;
+  justify-content: right;
+  max-height: 80%;
+  align-content: center;
+  width: 400px;
+}
+
+.item-image {
+  max-height: 100%;
+}
+
+/* width */
+main::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+main::-webkit-scrollbar-track {
+  background: rgb(0, 20, 28);
+}
+
+/* Handle */
+main::-webkit-scrollbar-thumb {
+  background: white;
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+main::-webkit-scrollbar-thumb:hover {
+  background: whitesmoke;
+}
+
+/* width */
+.item-description::-webkit-scrollbar {
+  width: 50px;
+}
+
+/* Track */
+.item-description::-webkit-scrollbar-track {
+  background: whitesmoke;
+}
+
+/* Handle */
+.item-description::-webkit-scrollbar-thumb {
+  background-image: url("../img/Chibi\ marine.png"),
+    linear-gradient(100deg, transparent, transparent);
+  /* background-position: center bottom, center -40px; */
+  background-repeat: no-repeat, no-repeat;
+  background-size: contain, contain;
+}
+
