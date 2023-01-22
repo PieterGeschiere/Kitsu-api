@@ -53,9 +53,7 @@ function createKitsuItem(title, description, imageSrc) {
 
   item.append(itemLeft, itemRight);
 
-  document.getElementById("items").appenddsfdsfsdfsd(item);
-
-  ruihgtohrisdhgiuhsngvjfdsnkjgnkjosl 
+  document.getElementById("items").append(item);
 }
 
 init();
