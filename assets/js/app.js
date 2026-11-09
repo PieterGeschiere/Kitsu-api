@@ -37,7 +37,7 @@ function libraryUrl(offset) {
     include: "anime",
     "page[limit]": PAGE_SIZE,
     "page[offset]": offset,
-    "fields[libraryEntries]": "ratingTwenty,progress,finishedAt,anime",
+    "fields[libraryEntries]": "ratingTwenty,progress,createdAt,anime",
     "fields[anime]":
       "canonicalTitle,synopsis,posterImage,ageRating,startDate,episodeCount,subtype,averageRating,slug",
   });
@@ -82,6 +82,7 @@ function toItem(entry, anime) {
     slug: anime.slug,
     myRating: rating ? rating / 2 : null, // ratingTwenty is 2-20, shown out of 10
     progress: entry.attributes.progress || 0,
+    addedAt: entry.attributes.createdAt ? Date.parse(entry.attributes.createdAt) : 0,
   };
 }
 
@@ -146,6 +147,7 @@ function renderSkeleton(count = 18) {
 
 const sorters = {
   rating: (a, b) => (b.myRating ?? 0) - (a.myRating ?? 0) || (b.community ?? 0) - (a.community ?? 0),
+  added: (a, b) => b.addedAt - a.addedAt,
   community: (a, b) => (b.community ?? 0) - (a.community ?? 0),
   newest: (a, b) => (b.year ?? 0) - (a.year ?? 0),
   oldest: (a, b) => (a.year ?? 9999) - (b.year ?? 9999),
@@ -277,6 +279,12 @@ function openDetail(item) {
   addScore("My rating", item.myRating ? `${formatScore(item.myRating)} / 10` : "Unrated");
   addScore("Community", item.community ? `${item.community.toFixed(0)}%` : "n/a");
   addScore("Episodes watched", item.progress.toLocaleString());
+  if (item.addedAt) {
+    addScore(
+      "Added",
+      new Date(item.addedAt).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" })
+    );
+  }
 
   els.detail.showModal();
 }
@@ -298,10 +306,87 @@ els.search.addEventListener("input", () => {
   }, 120);
 });
 
-els.sort.addEventListener("change", () => {
-  view.sort = els.sort.value;
+/* Custom sort dropdown (listbox pattern) */
+
+const sortUi = {
+  trigger: document.getElementById("sort-trigger"),
+  menu: document.getElementById("sort-menu"),
+  current: document.getElementById("sort-current"),
+  options: [...document.querySelectorAll("#sort-menu [role='option']")],
+  focused: 0,
+};
+
+sortUi.options.forEach((opt, i) => (opt.id = `sort-opt-${i}`));
+
+function focusOption(index) {
+  const count = sortUi.options.length;
+  sortUi.focused = (index + count) % count;
+  sortUi.options.forEach((opt, i) => opt.classList.toggle("is-focused", i === sortUi.focused));
+  sortUi.menu.setAttribute("aria-activedescendant", sortUi.options[sortUi.focused].id);
+  sortUi.options[sortUi.focused].scrollIntoView({ block: "nearest" });
+}
+
+function openSort() {
+  sortUi.menu.hidden = false;
+  sortUi.trigger.setAttribute("aria-expanded", "true");
+  focusOption(sortUi.options.findIndex((o) => o.dataset.value === view.sort));
+  sortUi.menu.focus();
+}
+
+function closeSort({ returnFocus = true } = {}) {
+  if (sortUi.menu.hidden) return;
+  sortUi.menu.hidden = true;
+  sortUi.trigger.setAttribute("aria-expanded", "false");
+  if (returnFocus) sortUi.trigger.focus();
+}
+
+function chooseSort(option) {
+  sortUi.options.forEach((o) => o.setAttribute("aria-selected", String(o === option)));
+  sortUi.current.textContent = option.textContent;
+  closeSort();
+  if (view.sort === option.dataset.value) return;
+  view.sort = option.dataset.value;
   view.page = 1;
   render();
+}
+
+sortUi.trigger.addEventListener("click", () => (sortUi.menu.hidden ? openSort() : closeSort()));
+
+sortUi.trigger.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+    event.preventDefault();
+    openSort();
+  }
+});
+
+sortUi.menu.addEventListener("click", (event) => {
+  const option = event.target.closest("[role='option']");
+  if (option) chooseSort(option);
+});
+
+sortUi.menu.addEventListener("mousemove", (event) => {
+  const option = event.target.closest("[role='option']");
+  if (option) focusOption(sortUi.options.indexOf(option));
+});
+
+sortUi.menu.addEventListener("keydown", (event) => {
+  const keys = {
+    ArrowDown: () => focusOption(sortUi.focused + 1),
+    ArrowUp: () => focusOption(sortUi.focused - 1),
+    Home: () => focusOption(0),
+    End: () => focusOption(sortUi.options.length - 1),
+    Enter: () => chooseSort(sortUi.options[sortUi.focused]),
+    " ": () => chooseSort(sortUi.options[sortUi.focused]),
+    Escape: () => closeSort(),
+    Tab: () => closeSort({ returnFocus: false }),
+  };
+  if (!keys[event.key]) return;
+  if (event.key !== "Tab") event.preventDefault();
+  keys[event.key]();
+});
+
+document.addEventListener("pointerdown", (event) => {
+  if (!els.sort.contains(event.target)) closeSort({ returnFocus: false });
 });
 
 els.pagination.addEventListener("click", (event) => {

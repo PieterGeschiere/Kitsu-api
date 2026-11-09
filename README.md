@@ -8,7 +8,7 @@ A small static site that shows every anime I've finished, pulled live from my [K
 
 - Loads all completed entries from the Kitsu public API. It pages through the results and pulls in the anime details with `include=anime`, so it needs only a couple of requests rather than one per title.
 - Shows totals at the top: titles, episodes watched, and how many I rated 10/10.
-- Search by title, filter by format (TV, Movie, OVA, ONA, Special), and sort by my rating, community score, release year or title.
+- Search by title, filter by format (TV, Movie, OVA, ONA, Special), and sort by my rating, date added, community score, release year or title.
 - Click a poster to open its synopsis, scores and a link to the Kitsu page.
 - Leaves out titles rated R.
 - Follows the system light or dark theme.
